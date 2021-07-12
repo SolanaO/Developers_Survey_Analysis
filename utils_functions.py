@@ -20,3 +20,19 @@ def counts_strings(strings_list, dframe, incol):
         my_counts[entry] = dframe[incol].str.contains(entry).sum()
     new_df = pd.DataFrame.from_dict(my_counts, orient = 'index').reset_index()
     return new_df
+
+# merge two dataframes and add a clean list of entries 
+def merge_df(df1, df2, old_col):
+    """
+    Merges two dataframes on a common column. 
+    INPUT: 
+        df1, df2 = the two pandas datframes to merge
+        old_col = column shared by the two dataframes
+    OUTPUT:
+        df_temp = new dataframe that contains the common column and all the other 
+                  columns in df1 and df2
+    """
+    
+    df_temp = pd.merge(df1, df2, on = old_col)
+    #df_temp[new_col] = col_list
+    return df_temp
