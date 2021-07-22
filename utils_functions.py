@@ -1,7 +1,36 @@
 # import neccessary packages and libraries
+import os
 from collections import defaultdict
+
 import numpy as np
 import pandas as pd
+
+import matplotlib.pyplot as plt
+
+import seaborn as sns
+# set a theme for seaborn
+sns.set_theme()
+
+from sklearn.linear_model import LinearRegression
+from sklearn.impute import KNNImputer
+
+from sklearn import (
+    ensemble,
+    preprocessing,
+    tree,
+)
+from sklearn.model_selection import (
+    train_test_split,
+    StratifiedKFold,
+)
+from sklearn.metrics import (
+    r2_score, 
+    mean_squared_error,
+    auc,
+    confusion_matrix,
+    roc_auc_score,
+    roc_curve,
+)
 
 # create a function that will count the type of strings 
 def counts_strings(strings_list, dframe, incol):
@@ -40,34 +69,32 @@ def binarize_col(df, old_col, new_col, cut_labels, cut_bins):
     return df
     
     
-def preprocess_data(df1):
+def preprocess_data(df):
     # get the data coders only
-    df1 = df1[df1.DevClass == 'data_coder']
+    df = df[df.DevClass == 'data_coder']
     # keep only columns of interest
-    df1 = df1['MainBranch', 'ConvertedComp', 'EdLevel', 'Employment',
-       'JobSat', 'EdImpt','Learn', 'Overtime', 'OpSys', 'OrgSize', 
-       'UndergradMajor', 'WorkWeekHrs']
+    df = df[['MainBranch', 'ConvertedComp', 'EdLevel', 'Employment', 'JobSat', 'EdImpt','Learn',     'Overtime', 'OpSys', 'OrgSize', 'UndergradMajor', 'WorkWeekHrs']]
     # drop duplicates
-    df1.drop_duplicates(subset=None, keep='first', inplace=True)
+    df.drop_duplicates(subset=None, keep='first', inplace=True)
     
     # binarize numerical columns work wek hours
     
     # create the labels for work week hours
     cut_labels_week = ['<10', '10-20', '20-30', '30-40', '40-50', '>50']
     # define the bins for work wek hours
-    m1 = df1.WorkWeekHrs.max()
+    m1 = df.WorkWeekHrs.max()
     cut_bins_week = [0, 10, 20, 30, 40, 50, m1]
     # create the binnarized column and drop the old one
-    binarize_col(df1, 'WorkWeekHrs', 'WorkWeek_Bins', cut_labels_week, cut_bins_week)
+    binarize_col(df, 'WorkWeekHrs', 'WorkWeek_Bins', cut_labels_week, cut_bins_week)
     
     # create the labels for converted compensation
     cut_labels_comp = ['<10K', '10K-30K', '30K-50K', '50K-100K', '100K-200K', '>200K']
     # define the bins 
-    m2 = df1.ConvertedComp.max()
-    cut_bins_comp = [0, 10000, 30000, 50000, 100000, 200000, m]
+    m2 = df.ConvertedComp.max()
+    cut_bins_comp = [0, 10000, 30000, 50000, 100000, 200000, m2]
     # binnarize the column and drop the old one
-    binarize_col(df1, 'ConvertedComp', 'Comp_Bins', cut_labels_comp, cut_bins_comp)
-    returnd df1
+    binarize_col(df, 'ConvertedComp', 'Comp_Bins', cut_labels_comp, cut_bins_comp)
+    return df
     
 def process_data(df, y_col):
     # create label column
@@ -82,8 +109,9 @@ def process_data(df, y_col):
     # create an instance of the imputer
     imputer = KNNImputer(n_neighbors=5)
     # fit the imputer on the dataset
-    X_train_trans = pd.DataFrame(imputer.fit_transform(X_train), columns = X_train.columns)
-    return X_train_trans, y_train, X_test, y_test
+    X_train = pd.DataFrame(imputer.fit_transform(X_train), columns = X_train.columns)
+    X_test = pd.DataFrame(imputer.fit_transform(X_test), columns = X_test.columns)
+    return X_train, y_train, X_test, y_test
 
 
     
