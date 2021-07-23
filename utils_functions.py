@@ -71,9 +71,10 @@ def binarize_col(df, old_col, new_col, cut_labels, cut_bins):
     
 def preprocess_data(df):
     # get the data coders only
-    df = df[df.DevClass == 'data_coder']
+    #df = df[df.DevClass == 'data_coder']
     # keep only columns of interest
-    df = df[['MainBranch', 'ConvertedComp', 'EdLevel', 'Employment', 'JobSat', 'EdImpt','Learn',     'Overtime', 'OpSys', 'OrgSize', 'UndergradMajor', 'WorkWeekHrs']]
+    df = df[['MainBranch', 'ConvertedComp', 'EdLevel', 'Employment', 'JobSat', 'EdImpt','Learn', 'Overtime', 'OpSys', 'OrgSize', 'UndergradMajor', 'WorkWeekHrs']]
+   # df = df[['ConvertedComp','Country', 'EdLevel', 'JobSat', 'EdImpt','Overtime', 'OrgSize', #'UndergradMajor', 'WorkWeekHrs']]
     # drop duplicates
     df.drop_duplicates(subset=None, keep='first', inplace=True)
     
