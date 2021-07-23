@@ -32,11 +32,24 @@ from sklearn.metrics import (
     roc_curve,
 )
 
+
+
+# print to a file a list of packages and their versions used in this jupyter notebook
+def package_requirements():
+    "Creates a text file with the packages list and their versions."
+    with open('packageinfo.txt', 'w') as f:
+        print('Python {}'.format(sys.version), file=f)
+        print('Packages:', file=f)
+        print('\n'.join(f'{m.__name__} {m.__version__}' 
+                    for m in globals().values() if getattr(m, '__version__', None)),file=f)
+    return()
+
 # create a function that will count the type of strings 
 def counts_strings(strings_list, dframe, incol):
     """
     Counts the number of occurences of a given string among
     the text entries of a column in a pandas dataframe.
+    Renames the columns in the output dataframe.
     INPUT: 
         strings_list = list of strings to search for
         dframe = pandas dataframe, must contain incol
@@ -48,11 +61,12 @@ def counts_strings(strings_list, dframe, incol):
     for entry in strings_list:
         my_counts[entry] = dframe[incol].str.contains(entry).sum()
     new_df = pd.DataFrame.from_dict(my_counts, orient = 'index').reset_index()
+    new_df.rename(columns = {'index':incol, 0:'counts'}, inplace=True)
     return new_df
 
 def binarize_col(df, old_col, new_col, cut_labels, cut_bins):
     """
-    Discretizes the values in a column to a number
+    Discretizes the values in a column to a number of
     custom made bins. Creates a new column, drops the old 
     column. 
     INPUT: 
@@ -68,12 +82,11 @@ def binarize_col(df, old_col, new_col, cut_labels, cut_bins):
     df.drop(columns = old_col, inplace=True)
     return df
     
-    
 def preprocess_data(df):
     # get the data coders only
-    #df = df[df.DevClass == 'data_coder']
+    df = df[df.DevClass == 'data_coder']
     # keep only columns of interest
-    df = df[['MainBranch', 'ConvertedComp', 'EdLevel', 'Employment', 'JobSat', 'EdImpt','Learn', 'Overtime', 'OpSys', 'OrgSize', 'UndergradMajor', 'WorkWeekHrs']]
+    #df = df[['MainBranch', 'ConvertedComp', 'EdLevel', 'Employment', 'JobSat', 'EdImpt','Learn', 'Overtime', 'OpSys', 'OrgSize', 'UndergradMajor', 'WorkWeekHrs']]
    # df = df[['ConvertedComp','Country', 'EdLevel', 'JobSat', 'EdImpt','Overtime', 'OrgSize', #'UndergradMajor', 'WorkWeekHrs']]
     # drop duplicates
     df.drop_duplicates(subset=None, keep='first', inplace=True)
