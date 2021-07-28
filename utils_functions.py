@@ -64,6 +64,21 @@ def counts_strings(strings_list, dframe, incol):
     new_df.rename(columns = {'index':incol, 0:'counts'}, inplace=True)
     return new_df
 
+def possible_choices(df,col):
+    """
+    Lists all individual strings from entries of a column that contains 
+    lists of strings, originating from questions that have multiple answers.
+    INPUT:
+        df = dataframe
+        col = column whose entries are split in individual strings
+    OUTPUT:
+        choice_list = list of strings, that consist of unique possible choices
+    """
+    temp_list = df[col].dropna().str.strip('()').str.split(';').to_list()
+    flat_list = [item for sublist in temp_list for item in sublist]
+    choice_list = list(set(flat_list))
+    return choice_list
+
 def binarize_col(df, old_col, new_col, cut_labels, cut_bins):
     """
     Discretizes the values in a column to a number of
