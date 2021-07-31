@@ -81,45 +81,52 @@ cols_del = [
     # personal, demographics  information
     #'Respondent', 
     'MainBranch', 'Employment', 'Hobbyist', 
-    'Country','Ethnicity', 
-    'Gender', 'Sexuality', 'Trans', 'Age',
+    'Country',
+    'Ethnicity', 'Gender', 'Sexuality', 'Trans', 'Age',                                
     
     # related to ConvertedComp
-    'CompFreq', 'CompTotal', 'CurrencyDesc', 'CurrencySymbol',
+    'CompFreq', 'CompTotal', 'CurrencyDesc', 'CurrencySymbol',                 
     
     # questions regarding future activities
-    'DatabaseDesireNextYear', 'MiscTechDesireNextYear',
+    'DatabaseDesireNextYear', 'MiscTechDesireNextYear',                    
     'CollabToolsDesireNextYear', 'PlatformDesireNextYear',
     'LanguageDesireNextYear', 'WebframeDesireNextYear',
     
     # questions regarding this survey
-    'SurveyEase', 'SurveyLength', 'WelcomeChange',
+    'SurveyEase', 'SurveyLength', 'WelcomeChange',                           
     
     # question regarding participation is StackOverflow
     'SOSites', 'SOComm', 'SOPartFreq',
-    'SOVisitFreq', 'SOAccount',
+    'SOVisitFreq', 'SOAccount',                                               
 
     # columns related to other columns
-    'Age1stCode', 'YearsCodePro', 'DevClass', 
+    'Age1stCode', 'YearsCodePro', 'DevClass',                               
 
     # high cardinality, multiple choices columns, add noise 
-    'DatabaseWorkedWith','MiscTechWorkedWith',
-    'WebframeWorkedWith', 'LanguageWorkedWith',
-    'CollabToolsWorkedWith',
+    'DatabaseWorkedWith','MiscTechWorkedWith','LanguageWorkedWith',
+    'WebframeWorkedWith',  #'CollabToolsWorkedWith',                                                 
 
     # questions not relevant to our goal
     'JobHunt', 'JobHuntResearch', 'Stuck',
     'PurchaseResearch', 'PurchaseWhat', 
     'Stuck', 'PurpleLink',
     'OffTopic', 'OtherComms',
-    'JobFactors', 'JobSeek',
-
-    # auxiliary columns
-    'DevClass']
+    'JobFactors', 'JobSeek']                                                            
 
 JobSat_dict =  {'Very dissatisfied': 1, 'Slightly dissatisfied': 2,
                'Neither satisfied nor dissatisfied': 3, 
                'Slightly satisfied': 4, 'Very satisfied': 5}
+
+num_cols = [ 'ConvertedComp','WorkWeekHrs', 'YearsCode']
+
+multi_cols = ['CollabToolsWorkedWith', 'PlatformWorkedWith']
+
+cat_cols = [ 'DevType','EdLevel', 'DevOps',  'OnboardGood','OpSys', 'UndergradMajor']
+
+ordinal_cols = ['DevOpsImpt', 'EdImpt', 'Learn', 'Overtime','OrgSize']
+
+
+
 
 ####
 # pre-processing steps, useful mostly to render better looking plots
@@ -198,10 +205,8 @@ def remove_clean_data(dft):
     Steps to remove unnecessary rows and columns.
     """
     
-    # rewrite entries in 'DevType' colum as strings
-    dft['DevType'] = dft['DevType'].str.split(';')
-     # replicate rows so that each entry in 'DevType' is one developer choice
-    dft = dft.explode('DevType')
+    # rewrite entries in 'DevType' column as strings to replicate rows
+    dft = explode_col(dft, 'DevType')
     # retain only those rows that contain data coders
     dft = dft.loc[dft.DevType.str.contains('Data ', na=False)]
     # retain only the employed data developers
@@ -216,7 +221,7 @@ def remove_clean_data(dft):
     # drop rows with missing JobSat
     dft.dropna(subset=['JobSat'], inplace=True)
     #  encode the 'JobSat' data to numerical values
-    dft['JobSat'] = dft['JobSat'].replace(JobSat_dict)
+    #dft['JobSat'] = dft['JobSat'].replace(JobSat_dict)
     
     # replace strings with numerical entries
     replace_dict = {'Less than 1 year': '0', 'More than 50 years': '51'}
@@ -224,12 +229,11 @@ def remove_clean_data(dft):
     # change dtype to numeric
     dft['YearsCode'] = pd.to_numeric(dft['YearsCode'])
     
-    # rewrite entries in 'PlatformWorkedWith' colum as strings
-    dft['PlatformWorkedWith'] = dft['PlatformWorkedWith'].str.split(';')
-    # replicate rows so that each entry corresponds to a single string
-    dft = dft.explode('PlatformWorkedWith')
+    # rewrite entries in multi_cols as strings and replicate rows 
+    for col in multi_cols:
+        dft = explode_col(dft, col)
     
-    # drop duplicate rows, if any
+    # drop duplicate rows
     dft.drop_duplicates(subset=None, keep='first', inplace=True)
 
     return dft
