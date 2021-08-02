@@ -104,7 +104,7 @@ cols_del = [
 
     # high cardinality, multiple choices columns, add noise 
     'DatabaseWorkedWith','MiscTechWorkedWith','LanguageWorkedWith',
-    'WebframeWorkedWith',  #'CollabToolsWorkedWith',                                                 
+    'WebframeWorkedWith',  'CollabToolsWorkedWith',                                                 
 
     # questions not relevant to our goal
     'JobHunt', 'JobHuntResearch', 'Stuck',
@@ -116,17 +116,6 @@ cols_del = [
 JobSat_dict =  {'Very dissatisfied': 1, 'Slightly dissatisfied': 2,
                'Neither satisfied nor dissatisfied': 3, 
                'Slightly satisfied': 4, 'Very satisfied': 5}
-
-num_cols = [ 'ConvertedComp','WorkWeekHrs', 'YearsCode']
-
-multi_cols = ['CollabToolsWorkedWith', 'PlatformWorkedWith']
-
-cat_cols = [ 'DevType','EdLevel', 'DevOps',  'OnboardGood','OpSys', 'UndergradMajor']
-
-ordinal_cols = ['DevOpsImpt', 'EdImpt', 'Learn', 'Overtime','OrgSize']
-
-
-
 
 ####
 # pre-processing steps, useful mostly to render better looking plots
@@ -221,7 +210,7 @@ def remove_clean_data(dft):
     # drop rows with missing JobSat
     dft.dropna(subset=['JobSat'], inplace=True)
     #  encode the 'JobSat' data to numerical values
-    #dft['JobSat'] = dft['JobSat'].replace(JobSat_dict)
+    dft['JobSat'] = dft['JobSat'].replace(JobSat_dict)
     
     # replace strings with numerical entries
     replace_dict = {'Less than 1 year': '0', 'More than 50 years': '51'}
@@ -230,8 +219,9 @@ def remove_clean_data(dft):
     dft['YearsCode'] = pd.to_numeric(dft['YearsCode'])
     
     # rewrite entries in multi_cols as strings and replicate rows 
-    for col in multi_cols:
-        dft = explode_col(dft, col)
+    #for col in multi_cols:
+        #dft = explode_col(dft, col)
+    dft = explode_col(dft,'PlatformWorkedWith')
     
     # drop duplicate rows
     dft.drop_duplicates(subset=None, keep='first', inplace=True)
@@ -338,16 +328,6 @@ def process_data_old(df, y_col):
     X_test = pd.DataFrame(imputer.fit_transform(X_test), columns = X_test.columns)
     return X_train, y_train, X_test, y_test
 
-
-# feature selection
-def select_features(X_train, y_train, X_test):
-	fs = SelectKBest(score_func=mutual_info_classif, k=20)
-	fs.fit(X_train, y_train)
-	X_train_fs = fs.transform(X_train)
-	X_test_fs = fs.transform(X_test)
-	return X_train_fs, X_test_fs, fs
-# plot the scores
-#plt.bar([i for i in range(len(fs.scores_))], fs.scores_)
 
 def impute_predictors(X_train, X_test):
     imputer = SimpleImputer(strategy='constant', fill_value='missing')
