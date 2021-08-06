@@ -1,3 +1,123 @@
+# import neccessary packages and libraries
+import os
+from collections import defaultdict
+
+import numpy as np
+import pandas as pd
+
+import matplotlib.pyplot as plt
+
+import seaborn as sns
+# set a theme for seaborn
+sns.set_theme()
+
+from sklearn.base import (
+    BaseEstimator, 
+    TransformerMixin,
+)
+
+from sklearn.impute import (
+    KNNImputer,
+    SimpleImputer,
+)
+from sklearn.preprocessing import (
+    OneHotEncoder, 
+    OrdinalEncoder, 
+    LabelEncoder,
+    StandardScaler,
+)
+
+from sklearn.model_selection import (
+    train_test_split,
+    StratifiedKFold,
+)
+from sklearn.metrics import (
+    r2_score, 
+    mean_squared_error,
+    auc,
+    confusion_matrix,
+    roc_auc_score,
+    roc_curve,
+)
+
+from sklearn.pipeline import (
+    FeatureUnion, 
+    Pipeline 
+)
+
+# numerical, statistical and machine learning packages and libraries
+import xgboost as xgb
+from scipy import stats
+
+from sklearn import (
+    ensemble,
+    tree,
+)
+from sklearn.base import (
+    BaseEstimator, 
+    TransformerMixin,
+)
+from sklearn.pipeline import (
+    make_pipeline,
+    FeatureUnion, 
+    Pipeline,
+)
+from sklearn.feature_selection import (
+    SelectKBest, 
+    chi2, 
+    mutual_info_classif,
+)
+from sklearn.impute import (
+    KNNImputer,
+    SimpleImputer,
+)
+from sklearn.preprocessing import (
+    OneHotEncoder, 
+    OrdinalEncoder, 
+    LabelEncoder,
+    StandardScaler,
+    MultiLabelBinarizer,
+)
+from sklearn.model_selection import (
+    train_test_split,
+    StratifiedKFold,
+    KFold,
+    cross_val_score,
+)
+
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.naive_bayes import GaussianNB
+from sklearn.svm import SVC
+from sklearn.ensemble import RandomForestClassifier
+
+from sklearn.linear_model import (
+    SGDClassifier,
+    LogisticRegression,
+) 
+
+from sklearn.metrics import (
+    classification_report,
+    r2_score, 
+    mean_squared_error,
+    auc,
+    confusion_matrix,
+    accuracy_score,
+    roc_auc_score,
+    roc_curve,
+    precision_score,
+    recall_score,
+    log_loss,
+    roc_auc_score
+)
+
+import local_maps as lm
+import utils_functions as uf 
+import utils_classes as uc
+import local_maps as lm
+
+
+
 ## Contains: replacement dictionaries and useful lists used in the data processing. 
 
 # dictionary with shorter strings for education levels
@@ -57,28 +177,35 @@ cols_del = [
     'SOVisitFreq', 'SOAccount',                                               
 
     # columns related to other columns
-    'Age1stCode', 'YearsCodePro', 'DevClass',
+    'Age1stCode', 'YearsCodePro', 'DevClass', 
     
     # high cardinality, multiple choices columns, add noise 
     'DatabaseWorkedWith','MiscTechWorkedWith','LanguageWorkedWith',
-    'WebframeWorkedWith', 
-    #'CollabToolsWorkedWith',                                                 
+    'WebframeWorkedWith', #'CollabToolsWorkedWith',                                                 
 
-    # questions not relevant to our goal
-    'JobHunt', 'JobHuntResearch', 'Stuck',
+    # other questions not directly related to our goal
+    'JobHunt', 
+    'JobHuntResearch', 'Stuck',
     'PurchaseResearch', 
-    'PurchaseWhat', 
+     #'PurchaseWhat', 
     'Stuck', 'PurpleLink',
     'OffTopic', 'OtherComms',
-    'JobFactors', 'JobSeek',
+    'JobFactors', #'JobSeek',
     'DevType']                                                            
 
 
-# platforms to keep from column PlatformWorkedWith
-platf_keep_list = ['Linux', 'Windows', 'Docker']
+# the columns grouped by types in the predictors matrix
 
-# platforms to drop from column PlatformWorkedWith
-platf_drop_list = ['AWS', 'MacOS', 'Google Cloud Platform', 'Android', 'Microsoft Azure',
-              'Raspberry Pi', 'Kubernetes', 'WordPress', 'Arduino', 'Heroku', 'iOS',
-              'Slack Apps and Integrations', 'IBM Cloud or Watson']
-drop_dict = {'PlatformWorkedWith': platf_drop_list}
+# numerical columns
+num_cols = ['ConvertedComp', 'WorkWeekHrs', 'YearsCode']
+# the list of discrete columns with many levels 
+multi_cols = ['PlatformWorkedWith', 'CollabToolsWorkedWith']
+# the list of discrete columns with several levels
+uni_cols = ['EdLevel', 'EdImpt', 'OnboardGood', 'JobSeek', 
+            'Overtime', 'DevOps', 'Learn', 'UndergradMajor', 'OpSys', 
+            'DevOpsImpt', 'OrgSize', 'PurchaseWhat']
+
+# the list of performance metrics associated to confusion matrix
+metrics_list = ['accuracy','precision','recall', 'f1']
+
+

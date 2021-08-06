@@ -1,21 +1,40 @@
-# import neccessary packages and libraries
+# general packages and libraries
 import os
+import sys
 from collections import defaultdict
+import importlib
 
 import numpy as np
 import pandas as pd
 
-import matplotlib.pyplot as plt
+# numerical, statistical and machine learning packages and libraries
+import xgboost as xgb
+from scipy import stats
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.naive_bayes import GaussianNB
+from sklearn.svm import SVC
+from sklearn.ensemble import RandomForestClassifier
 
-import seaborn as sns
-# set a theme for seaborn
-sns.set_theme()
 
+from sklearn import (
+    ensemble,
+    tree,
+)
 from sklearn.base import (
     BaseEstimator, 
     TransformerMixin,
 )
-
+from sklearn.pipeline import (
+    make_pipeline,
+    FeatureUnion, 
+    Pipeline,
+)
+from sklearn.feature_selection import (
+    SelectKBest, 
+    chi2, 
+    mutual_info_classif,
+)
 from sklearn.impute import (
     KNNImputer,
     SimpleImputer,
@@ -25,27 +44,39 @@ from sklearn.preprocessing import (
     OrdinalEncoder, 
     LabelEncoder,
     StandardScaler,
+    MultiLabelBinarizer,
 )
-
 from sklearn.model_selection import (
     train_test_split,
     StratifiedKFold,
+    KFold,
+    cross_val_score,
 )
+
+from sklearn.linear_model import (
+    SGDClassifier,
+    LogisticRegression,
+) 
+
 from sklearn.metrics import (
+    classification_report,
     r2_score, 
     mean_squared_error,
     auc,
-    confusion_matrix,
+    confusion_matrix, 
+    accuracy_score, 
     roc_auc_score,
     roc_curve,
+    precision_score,
+    recall_score, f1_score,
+    log_loss,
+    roc_auc_score
 )
 
-from sklearn.pipeline import (
-    FeatureUnion, 
-    Pipeline 
-)
-
+# import local modules
 import local_maps as lm
+import utils_classes as uc
+
 
 # print to a file a list of packages and their versions used in this jupyter notebook
 def package_requirements():
@@ -161,7 +192,32 @@ def parse_multi_columns(df, multi_cols):
     """
     for col in multi_cols:
         df[col] = df[col].str.split(';').apply(lambda x: {} if x is np.nan else set(x))
-    return df[col]
+    return df
+
+# for each categorical column, print possible row values and their counts
+def list_answers(df, cat_cols):
+    for col in cat_cols:
+        print(col)
+        print(' ')
+        print(df1[col].value_counts())
+        print(' ')
+        
+# compute performance metrics related to the confusion matrix        
+def get_perf_metrics(model, X, y_comp):
+    """
+    Calculate and print performance metrics for the model evaluation.
+    Metrics evaluated are: roc_auc, accuracy, precision, recall"""
+    
+    y_pred = model.predict(X)
+    
+    accuracy = accuracy_score(y_comp, y_pred)
+    precision = precision_score(y_comp, y_pred, average = 'macro')
+    recall = recall_score(y_comp, y_pred, average = 'macro')
+    f1 = f1_score(y_comp, y_pred, average = 'macro')
+     
+    model_scores = [accuracy, precision, recall, f1]
+    
+    return model_scores
 
 ######################################################################################
 
@@ -191,12 +247,11 @@ def remove_clean_data(dft):
     Steps to remove unnecessary rows and columns.
     """
     
-    # use the auxiliary column to retain the data developers only
-    #dft = dft[dft['DevClass']== 'data_coder']
-    
     # rewrite entries in 'DevType' column as strings to replicate rows
+    
     # transform each element of col into a list
     dft['DevType'] = dft['DevType'].str.split(';')
+    
     # transform each element of a list-like to a row, replicating index values
     dft = dft.explode('DevType')
     
@@ -206,16 +261,17 @@ def remove_clean_data(dft):
     # retain only the employed data developers
     dft = dft[dft['Employment'] != 'Not employed, but looking for work']
     
+    # retain only the respondents that code professionally
     # create a list of main branch choices
     main_choices = dft.MainBranch.value_counts().index.to_list()
     # retain rows where MainBranch contains the data professionals
     dft = dft[dft.MainBranch.isin(main_choices[:2])]
     
-    # drop all the columns in the specified list
-    dft.drop(columns=lm.cols_del, inplace=True)
-    
     # drop rows with missing JobSat
     dft.dropna(subset=['JobSat'], inplace=True)
+    
+    # drop all the columns in the specified list of columns
+    dft.drop(columns=lm.cols_del, inplace=True)
     
     #  encode the 'JobSat' data to numerical values
     dft['JobSat'] = dft['JobSat'].replace(lm.JobSat_dict)
@@ -223,20 +279,23 @@ def remove_clean_data(dft):
     # replace strings with numerical entries in YearsCode column
     replace_dict = {'Less than 1 year': '0', 'More than 50 years': '51'}
     dft.replace(replace_dict, inplace=True)
-    
     # change dtype to numeric
     dft['YearsCode'] = pd.to_numeric(dft['YearsCode'])
         
     # drop duplicate rows
-    dft.drop_duplicates(subset=None, keep='first', inplace=True)
+    #dft.drop_duplicates(subset=None, keep='first', inplace=True)
+    
+    # parse the multi columns
+    multi_cols = ['PlatformWorkedWith', 'CollabToolsWorkedWith']
+    dft = parse_multi_columns(dft, multi_cols)
     
     # replace the list of entries with sets, missing values with empy set
-    dft['PlatformWorkedWith'] = \
-    dft['PlatformWorkedWith'].str.split(';').apply(lambda x: {} if
-                                                   x is np.nan else set(x))
-    dft['CollabToolsWorkedWith'] = \
-    dft['CollabToolsWorkedWith'].str.split(';').apply(lambda x: {} if
-                                                   x is np.nan else set(x))
+    #dft['PlatformWorkedWith'] = \
+    #dft['PlatformWorkedWith'].str.split(';').apply(lambda x: {} if
+                                                   #x is np.nan else set(x))
+    #dft['CollabToolsWorkedWith'] = \
+    #dft['CollabToolsWorkedWith'].str.split(';').apply(lambda x: {} if
+                                                   #x is np.nan else set(x))
 
     return dft
     
