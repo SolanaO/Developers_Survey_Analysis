@@ -92,6 +92,28 @@ def package_requirements():
 
 #### GENERAL FUNCTIONS
 
+def groupby_to_df(df, groupby_col, count_col, method):
+    """
+    Counts the values of a column grouped by the categories of
+    a second column and converts the answer into a dataframe whose columns
+    correspond to the caegories of the groupby column.
+    INPUT:
+        df = dataframe
+        groupy_col = column used in groupby 
+        count_col = column whose values are counted
+        method = True (if output is normalized), False (for counts only).
+    OUTPUT:
+        df = dataframe whose columns are categories in groupby_col
+    """
+    # use groupby() to get the percentage of count_col in each level
+    temp_df = df.groupby(groupby_col)[count_col].value_counts(normalize=method)
+    # convert the series into a dataframe object
+    temp_df = temp_df.reset_index(name='result')
+    # put the columns in array form 
+    temp_df = temp_df.pivot(index=count_col, columns=groupby_col)
+    temp_df.columns = temp_df.columns.to_flat_index()
+    return temp_df
+
 # prepare a column with multiple choice answers by replicating the rows
 def explode_col(df, col):
     """
@@ -237,17 +259,17 @@ def data_prep(df):
     df1.replace(lm.new_EdLevel, inplace=True)
     df1.replace(lm.new_UndergradMajor, inplace=True)
     df1.replace(lm.new_EdImpt, inplace=True)
+    # rename the data engineer string 
+    df1['DevType'] = df1['DevType'].str.replace('Engineer, data', 'Data engineer')
     # drop duplicates if any
     df1.drop_duplicates()
     return df1
 
-# steps for removing unnecessary data
-def remove_clean_data(dft): 
+# parse the 'DevType' column
+def parse_dev_type(dft):
     """
-    Steps to remove unnecessary rows and columns.
+    Rewrite entries in 'DevType' column as strings to replicate rows.
     """
-    
-    # rewrite entries in 'DevType' column as strings to replicate rows
     
     # transform each element of col into a list
     dft['DevType'] = dft['DevType'].str.split(';')
@@ -257,6 +279,14 @@ def remove_clean_data(dft):
     
     # retain only those rows that contain data coders
     dft = dft.loc[dft.DevType.str.contains('Data ', na=False)]
+    
+    return dft
+
+# steps for removing unnecessary data
+def remove_clean_data(dft): 
+    """
+    Steps to remove unnecessary rows and columns.
+    """
     
     # retain only the employed data developers
     dft = dft[dft['Employment'] != 'Not employed, but looking for work']
@@ -281,22 +311,11 @@ def remove_clean_data(dft):
     dft.replace(replace_dict, inplace=True)
     # change dtype to numeric
     dft['YearsCode'] = pd.to_numeric(dft['YearsCode'])
-        
-    # drop duplicate rows
-    #dft.drop_duplicates(subset=None, keep='first', inplace=True)
     
     # parse the multi columns
     multi_cols = ['PlatformWorkedWith', 'CollabToolsWorkedWith']
     dft = parse_multi_columns(dft, multi_cols)
     
-    # replace the list of entries with sets, missing values with empy set
-    #dft['PlatformWorkedWith'] = \
-    #dft['PlatformWorkedWith'].str.split(';').apply(lambda x: {} if
-                                                   #x is np.nan else set(x))
-    #dft['CollabToolsWorkedWith'] = \
-    #dft['CollabToolsWorkedWith'].str.split(';').apply(lambda x: {} if
-                                                   #x is np.nan else set(x))
-
     return dft
     
     

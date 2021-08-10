@@ -145,3 +145,25 @@ class MultiColumnsEncoder(BaseEstimator, TransformerMixin):
 
         return X
 
+## processing data pipeline
+
+# the steps in the categorical pipeline for columns of low cardinality
+uni_cat_pipeline = Pipeline( steps = [( 'unicat_selector', FeatureSelector(lm.uni_cols) ),
+                                  ('imputer', SimpleImputer(strategy='constant', fill_value='missing')),
+                                  ( 'ordinal_encoder', OrdinalEncoder() ) ] )
+
+# the steps in the categorical pipeline for columns of high cardinality
+multi_cat_pipeline = Pipeline( steps = [( 'multicat_selector', FeatureSelector(lm.multi_cols) ),
+                                  ( 'multi_encoder', MultiColumnsEncoder(lm.multi_cols) ) ] )
+
+# the steps in the numerical pipeline     
+num_pipeline = Pipeline( steps = [ ('num_selector', FeatureSelector(lm.num_cols) ),
+                                  ('imputer', KNNImputer(n_neighbors=5) ),
+                                  ( 'std_scaler', StandardScaler() ) ] )
+
+# combine the numerical and the categorical pipelines
+full_pipeline = FeatureUnion( transformer_list = [ ( 'unicat_pipeline', uni_cat_pipeline ), 
+                                                  ( 'multicat_pipeline', multi_cat_pipeline ) ,
+                                                 ( 'numerical_pipeline', num_pipeline )] )
+    
+
