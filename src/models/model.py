@@ -1,3 +1,16 @@
+
+"""
+The module:
+    - uploads the raw data,
+    - performs all the preprocessing and the processing steps,
+    - performs feature engineering,
+    - samples the data,
+    - applies the tuned algorithm,
+    - prints the performance metrics.
+"""
+
+########################################################################
+
 # import general packages and libraries
 import sys
 import importlib
@@ -5,15 +18,6 @@ import importlib
 # data manipulation packages
 import numpy as np
 import pandas as pd
-
-# data visualizations packages
-import matplotlib.pyplot as plt
-# to render plots in the notebook
-%matplotlib inline
-
-import seaborn as sns
-# set a theme for seaborn
-sns.set_theme()
 
 # numerical, statistical and machine learning packages and libraries
 
@@ -50,12 +54,7 @@ from sklearn.metrics import (
     precision_score,
     recall_score
 )
-
-# import local modules 
-import utils_functions as uf 
-import utils_classes as uc
-import local_maps as lm      
-
+ 
 #################################################################################
 
 # create a string for the working directory
@@ -65,6 +64,13 @@ mypath = '/home/silvia/Documents/udacityND/ml_dsnd/proj1_dsnd/'
 sys.path.insert(1, mypath + 'src')
 
 ##################################################################################
+
+# import local modules 
+import utils_functions as uf 
+import utils_classes as uc
+import local_maps as lm     
+
+#################################################################################
 
 # upload the datafile as pandas dataframe
 df = pd.read_csv(mypath+'/data/raw/survey20_results_public.csv', index_col=[0])
