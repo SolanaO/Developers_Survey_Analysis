@@ -72,7 +72,7 @@ The process follows the CRISP-DM methodology which is detailed in the notebook. 
 ├── LICENSE  
 ├── README.md  
 ├── packageinfo.txt
-└── requirements.txt                        <- Requirements for reproducing the analysis environment.
+└── requirements.txt                        <- Requirements for reproducing the environment.
 ```
 ## Results
 
