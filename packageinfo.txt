@@ -1,6 +1,0 @@
-Python 3.7.6 (default, Jan  8 2020, 19:59:22) 
-[GCC 7.3.0]
-Packages:
-numpy 1.19.2
-pandas 1.2.4
-xgboost 0.90
