@@ -54,7 +54,11 @@ The process follows the CRISP-DM methodology which is detailed in the notebook. 
 │   ├── so_survey_2020.pdf
 ├── reports                                 <- Reports generated with Profiling.
 │   ├── images                              <- Relevant visualizations.
+│   │   ├── decision_tree_graphviz.png
+│   │   ├── devType.png                     
 │   │   ├── edLevel_heatmap.png
+│   │   ├── hypothesis_test.png
+│   │   ├── reduced_tree.png
 │   │   ├── shap_importance_reduced.png
 │   │   ├── undergradMajor_barplot.png
 │   │   ├── visual_tree.png
