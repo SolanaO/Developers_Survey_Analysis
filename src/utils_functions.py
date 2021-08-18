@@ -218,6 +218,14 @@ def parse_multi_columns(df, multi_cols):
 
 # for each categorical column, print possible row values and their counts
 def list_answers(df, cat_cols):
+    """
+    Simple function to print the counts on categories of discrete features.
+    INPUT: 
+        df = dataframe
+        cat_cols = list of names of discrete features
+    OUTPUT:
+        printed table with column names and the class counts for each category
+    """
     for col in cat_cols:
         print(col)
         print(' ')
@@ -228,7 +236,15 @@ def list_answers(df, cat_cols):
 def get_perf_metrics(model, X, y_comp):
     """
     Calculate and print performance metrics for the model evaluation.
-    Metrics evaluated are: roc_auc, accuracy, precision, recall"""
+    Metrics evaluated are: roc_auc, accuracy, precision, recall
+    INPUT:
+        model = an instance of the classifier
+        X = the dataframe of predictors, have to be processed for the model
+        y_comp = vector of labels
+    OUTPUT:
+        model scores = table of scores (accuracy, precision, recall, f1),
+                        for each of the labels to be classified
+    """
     
     y_pred = model.predict(X)
     
@@ -247,6 +263,13 @@ def get_perf_metrics(model, X, y_comp):
 
 # pre-processing steps, useful mostly to render better looking plots
 def data_prep(df):
+    """
+    Pre-processing steps for StackOverflow data.
+    INPUT:
+        df = raw data as pandas dataframe
+    OUTPUT:
+        df1 = preprocessed data, as pandas dataframe
+    """
     
     # create a copy of the data
     df1 = df.copy()
@@ -269,6 +292,10 @@ def data_prep(df):
 def parse_dev_type(dft):
     """
     Rewrite entries in 'DevType' column as strings to replicate rows.
+    INPUT:
+        dft = pandas dataframe
+    OUTPUT:
+        dft = dataframe with parsed `DevType` column
     """
     
     # transform each element of col into a list
@@ -286,6 +313,11 @@ def parse_dev_type(dft):
 def remove_clean_data(dft): 
     """
     Steps to remove unnecessary rows and columns.
+    INPUT:
+        dft = dataframe to be processed, based on StackOverflow data
+    OUTPUT:
+        dft = dataframe that contains only rows, columns relevant 
+              for the classification
     """
     
     # retain only the employed data developers
@@ -325,6 +357,16 @@ def remove_clean_data(dft):
 
 # older version of the data pre-processing steps    
 def preprocess_data_old(df):
+    """
+    Steps to preprocess the dataframe that contains the data coders.
+    Steps: drop columns, binarize sertain columns.
+    INPUT:
+        df = preprocessed dataframe based on StackOverflow data,
+             must contain an indicator column DevClass, which marks
+             if a devloper works with data or not
+    OUTPUT:
+        df = processed dataframe
+    """
     # get the data coders only
     df = df[df.DevClass == 'data_coder']
     # keep only columns of interest
@@ -356,6 +398,19 @@ def preprocess_data_old(df):
 
 # older version of the data processing steps
 def process_data_old(df, y_col):
+    """
+    Performs the following data processing steps:
+        - split into predictors and labels
+        - encode the discrete columns 
+        - split into train and test sets
+    INPUT:
+        df = pandas dataframe
+        y_col = column of labels
+    OUTPUT:
+        X_train, X_test = train and test dataframes of predictors
+        y_train, y_test = train and test sets of labels
+    
+    """
     # create label column
     y = df[y_col]
     # create predictors dataframe
@@ -374,6 +429,14 @@ def process_data_old(df, y_col):
 
 # imput the predictors, fit on train set and transform both sets
 def impute_predictors_old(X_train, X_test):
+    """
+    Imputes the predictors, by creating an instance of the SimpleImputer.
+    Fit the imputer on the train set, transform the train and the test sets.
+    INPUT: 
+        X_train, X_test = train and test dataframes
+    OUTPUT:
+        X_train_trans, X_test_trans = transformed train and test dataframes
+    """
     imputer = SimpleImputer(strategy='constant', fill_value='missing')
     # fit the imputer on the train set only
     imputer.fit(X_train)
