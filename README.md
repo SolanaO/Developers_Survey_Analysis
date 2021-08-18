@@ -80,7 +80,7 @@ The process follows the CRISP-DM methodology which is detailed in the notebook. 
 ```
 ## Results
 
-The outcomes for each question are outlined in the corresponding notebooks. A compilation of the most relevant results is available in this Medium post.
+The outcomes for each question are outlined in the corresponding notebooks. A non-technical compilation of the most relevant results is available in this [Medium post](https://medium.com/@silviaonofrei/who-are-the-data-professionals-b81456dac51b).
 
 ## Requirements
 
