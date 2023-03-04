@@ -36,7 +36,7 @@ The first question is investigated in the notebook `stackBlogQuestion1.ipynb` us
 
 <img src='reports/images/hypothesis_test.png' width="600" height="240">
 
-To address the second question, I use standard statistical methods. I conduct a Z-test for independent means to compare the averages of the converted compensation for data developers and the average converted compensation of the other developers. I found a difference in the average converted compensations of almost \$19K, with a very small $p$-value, and consistent with the hypothesis that there is a difference in compensation between the two groups of developers.
+To address the second question, I use standard statistical methods. I conduct a Z-test for independent means to compare the averages of the converted compensation for data developers and the average converted compensation of the other developers. I found a difference in the average converted compensations of almost 19K, with a very small $p$-value, and consistent with the hypothesis that there is a difference in compensation between the two groups of developers.
 
 The hypothesis test and the necessary data preparation can be found in the notebook `stackBlogQuestion2.ipynb`.
 
